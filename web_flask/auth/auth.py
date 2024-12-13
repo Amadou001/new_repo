@@ -497,8 +497,7 @@ def property_subcription():
                 'area': property.area,
                 'bedrooms': property.bedrooms,
                 'bathrooms': property.bathrooms,
-                'picture_link': storage.get_image(property.id, "Main_image").image_url  # "eb9a260b-2a73-4747-a0cb-7a1a8d2ac44e_p.jpg"  updates
-                # find_image_path(property.id)     NO NEED
+                'picture_link': storage.get_image(property.id, "Main_image").image_url
             }
             property_attributes.append(values)
 

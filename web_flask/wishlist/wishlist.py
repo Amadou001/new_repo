@@ -58,7 +58,6 @@ def wishlist():
                 'bedrooms': property.bedrooms,
                 'bathrooms': property.bathrooms,
                 'picture_link': storage.get_image(property.id, "Main_image").image_url
-                # find_image_path(property.id)
             }
             property_attributes.append(values)
 
@@ -68,19 +67,6 @@ def wishlist():
                                wishlist_type=wishlist_type)
     else:
         return render_template('404.html')
-
-
-def find_image_path(image_id):  # NO need
-    """find image_path"""
-    file_names = os.listdir("property/static/img/")
-    extensions = [".png", ".jpg", ".jpeg", ".gif"]
-    matching_files = [
-        f for f in file_names
-        if f.startswith(str(image_id) + '_p') and
-        any(f.endswith(ext) for ext in extensions)
-    ]
-    if matching_files:
-        return matching_files[0]
 
 
 @app_views_wishlist.route('/delete_property/<string:property_id>',
@@ -93,12 +79,11 @@ def delete_property(property_id):
     return jsonify({'success': 'Property correctly deleted'})
 
 
-# Newly added
 @app_views_wishlist.route('/add_to_wishlist/<property_id>')
 def add_to_wishlist(property_id):
     """ Add a property to the wishlist"""
     new_record = Whishlist()
-    new_record.user_id = current_user.id #Current User
+    new_record.user_id = current_user.id
     inside =  any(property_id in item for item in storage.all_wishlist_for_user(current_user.id))
     if not inside:
         new_record.property_id = property_id
