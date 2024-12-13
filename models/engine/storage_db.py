@@ -32,7 +32,7 @@ class DBStorage:
         """Contructor method
         """
         env = os.getenv("env")
-        url = "roofmarket_user:roofmarket_pwd@localhost/roofmarket_db1"
+        url = "roofmarket_user:roofmarket_pwd@localhost/roofmarket_db"
         self.__engine = create_engine(
                     'mysql+mysqldb://' + url, pool_pre_ping=True)
 

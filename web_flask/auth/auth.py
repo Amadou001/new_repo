@@ -199,12 +199,11 @@ def get_messages():
 @app_views_auth.route('/new_conversation', methods=['GET', 'POST'])
 def new_conversation():
     """Create a new room for a user"""
-    if request.method == "GET":
+    if request.method == "POST":
         show_modal = "yes"
         current_user_id = request.form.get('current_user_id')
         receiver_id = request.form.get('receiver_id')
         property_id = request.form.get('property_id')
-        print(current_user_id, receiver_id, property_id)
         room_checking_1 = storage.get_object(RoomParticipants,
                                              user_id=current_user_id,
                                              property_id=property_id)
@@ -218,7 +217,7 @@ def new_conversation():
                 room_checking_2.updated_at = datetime.datetime.utcnow()
                 room_checking_1.save()
                 room_checking_2.save()
-                return render_template("base.html", show_modal=show_modal)
+                return redirect(url_for('app_view_property.property_onclick', property_id=property_id, show_modal=show_modal))
         else:
             new_room = Room()
             first_room_participant = RoomParticipants(user_id=current_user_id,
@@ -235,8 +234,8 @@ def new_conversation():
                               message="New conversation opened!")
             message.save()
             update_online_status(False)
-            return render_template("base.html", show_modal=show_modal)
-    return render_template('room_creation.html')
+            return redirect(url_for('app_view_property.property_onclick', property_id=property_id))
+ 
 
 
 @app_views_auth.route('/messages/<room_id>', methods=['GET'])
@@ -265,7 +264,7 @@ def get_conversation(room_id):
         property_id = room_participant.property_id
         room_property = storage.get_object(Property, id=property_id)
         property_name = room_property.title
-        property_url = "http://127.0.0.1:5000/auth/base"
+        property_url = "http://127.0.0.1:5000/"+ url_for('app_view_property.property_onclick', property_id=property_id)
 
         my_conversation = {
             "property_name": property_name,
