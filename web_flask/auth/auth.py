@@ -45,14 +45,14 @@ def login_view():
                 message = "Successfully Logged In"
                 login_user(user)
                 flash(message, 'success')
-                return redirect(url_for('app_views_auth.base'))
+                return redirect(url_for('app_view_home.home'))
             message = "Authentification failed : Password or email incorrect"
             flash(message, "error")
-            return redirect(url_for('app_views_auth.base'))
+            return redirect(url_for('app_view_home.home'))
         else:
             message = "Account doesn't exist"
             flash(message, "error")
-            return redirect(url_for('app_views_auth.base'))
+            return redirect(url_for('aapp_view_home.home'))
 
 
 @login_required
@@ -60,7 +60,7 @@ def login_view():
 def log_out():
     """User logout Function"""
     logout_user()
-    return redirect(url_for('app_views_auth.base'))
+    return redirect(url_for('app_view_home.home'))
 
 
 @app_views_auth.route('/sign_up', methods=['GET', 'POST'])
@@ -89,17 +89,17 @@ def sign_up():
             new_instance.save()
             message = """Account successfully created"""
             flash(message, 'success')
-            return redirect(url_for('app_views_auth.base'))
+            return redirect(url_for('app_view_home.home'))
 
         except IntegrityError as e:
             storage.close()
             message = """Account not created, Email already exist"""
             flash(message, 'error')
-            return redirect(url_for('app_views_auth.base'))
+            return redirect(url_for('app_view_home.home'))
     else:
         message = """An error occur while creating your accound!"""
         flash(message, 'error')
-        return redirect(url_for('app_views_auth.base'))
+        return redirect(url_for('app_view_home.home'))
 
 
 @app_views_auth.route('/forgot_password', methods=['GET', 'POST'])
@@ -118,11 +118,11 @@ def forget_password():
             sent to your email address.
             """
             flash(message, "success")
-            return redirect(url_for('app_views_auth.base'))
+            return redirect(url_for('app_view_home.home'))
         else:
             message = "There is no account associated with this email."
             flash(message, "error")
-            return redirect(url_for('app_views_auth.base'))
+            return redirect(url_for('app_view_home.home'))
 
 
 @app_views_auth.route('/base', methods=['GET', 'POST'])
@@ -497,7 +497,8 @@ def property_subcription():
                 'area': property.area,
                 'bedrooms': property.bedrooms,
                 'bathrooms': property.bathrooms,
-                'picture_link': storage.get_image(property.id, "Main_image").image_url
+                'picture_link': storage.get_image(property.id, "Main_image").image_url  # "eb9a260b-2a73-4747-a0cb-7a1a8d2ac44e_p.jpg"  updates
+                # find_image_path(property.id)     NO NEED
             }
             property_attributes.append(values)
 

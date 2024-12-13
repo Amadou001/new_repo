@@ -255,7 +255,7 @@
             
                 if (country) {
                     // Fetch cities based on the selected country
-                    const response = await fetch(`/roofmarket/get_cities/${country}`);
+                    const response = await fetch(`/get_cities/${country}`);
                     const cities = await response.json();
             
                     // Populate the city dropdown with the retrieved cities
@@ -295,7 +295,7 @@
                         //search_bric.classList.add("disabled-link"); // Optionally style it as disabled
                     } else {
                         // Set the href attribute with the updated values
-                        search_bric.setAttribute("href", `/roofmarket/property_list?type=${typeValue}&country=${countryValue}&city=${cityValue}&max_price=${maxPriceValue}&min_price=${minPriceValue}`);
+                        search_bric.setAttribute("href", `/property/property_list?type=${typeValue}&country=${countryValue}&city=${cityValue}&max_price=${maxPriceValue}&min_price=${minPriceValue}`);
                         //search_bric.classList.remove("disabled-link"); // Remove disabled styling if previously applied
                     }
                 }

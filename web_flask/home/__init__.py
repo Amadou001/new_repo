@@ -11,7 +11,7 @@ parent_path = os.path.abspath(os.path.join(base_path, '../../'))
 sys.path.append(parent_path)
 
 app_views_home = Blueprint('app_view_home', __name__,
-                           url_prefix="/roofmarket",
+                           url_prefix="/home",
                          template_folder='templates',
                          static_folder='../auth/static')
 

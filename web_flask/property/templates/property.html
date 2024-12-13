@@ -146,7 +146,7 @@
                                 <p>Get in touch with the listing agent for the house.</p>
                             </div>
                             <div class="d-flex justify-content-center align-items-center">
-                                <a href="" class="btn btn-primary py-1 px-2 me-2" aria-label="Make a phone call">
+                                <a href="{{ url_for('app_views_auth.new_conversation', current_user_id=property.current_user, receiver_id=property.property_owner, property_id=property.id ) }}" class="btn btn-primary py-1 px-2 me-2" aria-label="Make a phone call">
                                     <i class="fa fa-envelope me-1"></i>Message
                                 </a>  
                                 <a href="/get-appointment" class="btn btn-dark py-1 px-2" aria-label="Get an appointment">
