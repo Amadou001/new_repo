@@ -52,7 +52,7 @@ def login_view():
         else:
             message = "Account doesn't exist"
             flash(message, "error")
-            return redirect(url_for('aapp_view_home.home'))
+            return redirect(url_for('app_view_home.home'))
 
 
 @login_required
@@ -199,11 +199,12 @@ def get_messages():
 @app_views_auth.route('/new_conversation', methods=['GET', 'POST'])
 def new_conversation():
     """Create a new room for a user"""
-    if request.method == "POST":
+    if request.method == "GET":
         show_modal = "yes"
         current_user_id = request.form.get('current_user_id')
         receiver_id = request.form.get('receiver_id')
         property_id = request.form.get('property_id')
+        print(current_user_id, receiver_id, property_id)
         room_checking_1 = storage.get_object(RoomParticipants,
                                              user_id=current_user_id,
                                              property_id=property_id)
@@ -497,8 +498,7 @@ def property_subcription():
                 'area': property.area,
                 'bedrooms': property.bedrooms,
                 'bathrooms': property.bathrooms,
-                'picture_link': storage.get_image(property.id, "Main_image").image_url  # "eb9a260b-2a73-4747-a0cb-7a1a8d2ac44e_p.jpg"  updates
-                # find_image_path(property.id)     NO NEED
+                'picture_link': storage.get_image(property.id, "Main_image").image_url
             }
             property_attributes.append(values)
 
