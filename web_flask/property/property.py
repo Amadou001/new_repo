@@ -6,7 +6,7 @@ from flask import render_template, abort, request, jsonify
 from models import storage
 from models.property import Property
 from models.property_image import Property_image
-from flask_login import current_user
+from flask_login import  current_user
 
 
 @app_views_property.route("/description/<property_id>", methods = ["GET"])
@@ -27,7 +27,7 @@ def property_onclick(property_id):
     property_dict["listing_type"] = the_property.listing_type
     property_dict["id"] = property_id
     property_dict["property_owner"] = the_property.user_id
-    property_dict["current_user"] = current_user
+    property_dict["current_user"] = current_user.id
 
     return render_template("property.html", property=property_dict, window="property")
 
