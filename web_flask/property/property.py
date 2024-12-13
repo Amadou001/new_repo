@@ -12,7 +12,8 @@ from flask_login import  current_user
 @app_views_property.route("/description/<property_id>", methods = ["GET"])
 def property_onclick(property_id):
     """When property clicked"""
-    show_modal= request.args.get('show_modal', None)
+    show_modal= request.args.get('show_modal')
+    print(request.path)
     the_property = storage.get_property_by_id(property_id)
     if not the_property:
         abort(404, description="Bad request: Property not found")

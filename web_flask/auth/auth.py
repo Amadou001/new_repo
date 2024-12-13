@@ -201,6 +201,7 @@ def new_conversation():
     """Create a new room for a user"""
     if request.method == "POST":
         show_modal = "yes"
+        
         current_user_id = request.form.get('current_user_id')
         receiver_id = request.form.get('receiver_id')
         property_id = request.form.get('property_id')

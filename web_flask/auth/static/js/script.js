@@ -310,20 +310,6 @@ async function loadMessages() {
 }
 
 
-    // Refesh the page when the message is closed
-    document.addEventListener('DOMContentLoaded', function () {
-        // Select the close button element by its class (using the class 'btn-close')
-        var closeButton = document.querySelector('.btn-close');
-
-        // Add an event listener for the click event on the close button
-        closeButton.addEventListener('click', function () {
-            // Reload the page when the close button is pressed
-            location.reload();
-        });
-    });
-
-
-
   // Function to collapse the navbar if it's open
   function closeNavbarIfOpen() {
     var navbarCollapse = document.getElementById('navbarCollapse');
