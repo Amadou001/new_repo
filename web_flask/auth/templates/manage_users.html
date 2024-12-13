@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Manage users{% endblock %}
+
+{% block content %}
+<div class="container-xxl bg-white p-0">
+    <br>
+
+    <!-- subscription heading start -->
+    <header class="mb-4 text-center">
+        <h4>Manage Users</h4>
+        <div class="d-flex justify-content-center align-items-center">
+            <span class="me-2">Total Users : </span>
+            <span class="badge bg-success">{{ users|length }}</span> <!-- Displays the number of users -->
+        </div>
+    </header>
+    <!-- subscription heading end -->
+    <!-- Back Button -->
+    <div class="text-center mb-3">
+        <a href="{{ url_for('app_views_auth.admin_panel') }}" class="btn btn-outline-primary">Back</a>
+    </div>
+    
+    <!-- Search Bar and Button to Activate/Deactivate Subscription -->
+    <div class="container mb-4">
+        <form method="POST" action=""> <!-- Adjust the action URL for managing subscriptions -->
+            <div class="row align-items-center">
+                <div class="col-12 col-md-8 mb-2 mb-md-0">
+                    <input type="text" class="form-control" id="searchInput" name="searchInput" placeholder="Search user by email">
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- User Management Table -->
+    <div class="container my-4">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                        <th>User Type</th>
+                        <th>Properties</th>
+                        <th>Delete User</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.phone }}</td>
+                        <td>{{ user.user_type }}</td>
+                        <td>{{ user.properties_count }}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm deleteBtn" data-bs-toggle="modal" data-bs-target="#deleteModal" data-user-email="{{ user.email }}">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for delete confirmation -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this user? This action cannot be undone.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('app_views_auth.manage_users') }}" id="deleteForm">
+                    <input type="hidden" name="user_email" id="userEmail" value="">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>                
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript to capture email and update hidden input -->
+<script>
+    // Listen for the modal opening and populate the email
+    const deleteButtons = document.querySelectorAll('.deleteBtn');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const userEmail = this.getAttribute('data-user-email');
+            document.getElementById('userEmail').value = userEmail;
+        });
+    });
+</script>
+
+{% endblock %}

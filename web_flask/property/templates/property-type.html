@@ -1,0 +1,68 @@
+<!-- Property Types-->
+
+{% extends "base.html" %}
+
+{% block title %}Property Type{% endblock %}
+
+{% block content %}
+    <!-- Category Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="text-center mx-auto mb-5 wow fadeInUp" data-wow-delay="0.1s" style="max-width: 600px;">
+                <h1 class="mb-3">Property Types</h1>
+                <p>Explore a Variety of Property Types. Whether you're looking for a cozy apartment, a spacious villa, or a commercial space, we offer a range of options to suit your needs.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <a class="cat-item d-block bg-light text-center rounded p-3" href="{{ url_for('app_view_property.property_list', type='apartment') }}">
+                        <div class="rounded p-4">
+                            <div class="icon mb-3">
+                                <img class="img-fluid" src="{{ url_for('app_view_property.static', filename='img/icon-apartment.png') }}" alt="Icon">
+                            </div>
+                            <h6>Apartment</h6>
+                            <span>{{ Number_per_type.apartment }} Properties</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
+                    <a class="cat-item d-block bg-light text-center rounded p-3" href="{{ url_for('app_view_property.property_list', type='villa') }}">
+                        <div class="rounded p-4">
+                            <div class="icon mb-3">
+                                <img class="img-fluid" src="{{ url_for('app_view_property.static', filename='img/icon-villa.png') }}" alt="Icon">
+                            </div>
+                            <h6>Villa</h6>
+                            <span>{{ Number_per_type.villa }} Properties</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <a class="cat-item d-block bg-light text-center rounded p-3" href="{{ url_for('app_view_property.property_list', type='house') }}">
+                        <div class="rounded p-4">
+                            <div class="icon mb-3">
+                                <img class="img-fluid" src="{{ url_for('app_view_property.static', filename='img/icon-house.png') }}" alt="Icon">
+                            </div>
+                            <h6>House</h6>
+                            <span>{{ Number_per_type.house }} Properties</span>
+                        </div>
+                    </a>
+                </div>
+                
+            
+                <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
+                    <a class="cat-item d-block bg-light text-center rounded p-3" href="{{ url_for('app_view_property.property_list', type='studio') }}">
+                        <div class="rounded p-4">
+                            <div class="icon mb-3">
+                                <img class="img-fluid" src="{{ url_for('app_view_property.static', filename='img/icon-housing.png') }}" alt="Icon">
+                            </div>
+                            <h6>Studio</h6>
+                            <span>{{ Number_per_type.studio }} Properties</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Category End -->
+    
+
+{% endblock %}

@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>RoofMarket</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="./static/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Inter:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('.static', filename='lib/animate/animate.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='lib/owlcarousel/assets/owl.carousel.min.css') }}">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/bootstrap.min.css') }}">
+
+    <!-- Template Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('.static', filename='css/new_style.css') }}">
+</head>
+
+<body>
+    <div class="container-xxl bg-white p-0">
+        <!-- Spinner Start -->
+        <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <!-- Spinner End -->
+
+        <!-- Navbar Start -->
+        <div class="container-fluid nav-bar bg-transparent">
+            <nav class="navbar navbar-expand-lg bg-white navbar-light py-0 px-4">
+                <a href="{{ url_for('app_view_home.home') }}" class="navbar-brand d-flex align-items-center text-center">
+                    <div class="icon p-2 me-2">
+                        <img class="img-fluid" src="{{ url_for('.static', filename='img/icon-deal.png') }}" alt="Icon" style="width: 30px; height: 30px;">
+                    </div>
+                    <h1 class="m-0 text-primary">RoofMarket</h1>
+                </a>
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <div class="navbar-nav ms-auto">
+                        <a href="{{ url_for('app_view_home.home') }}" class="nav-item nav-link {% if window == 'home' %} active {% endif %}">Home</a>
+                        <a href="{{ url_for('app_view_property.about') }}" class="nav-item nav-link {% if window == 'about' %} active {% endif %}">About</a>
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle {% if window == 'property' %} active {% endif %}" data-bs-toggle="dropdown">Property</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="{{ url_for('app_view_property.property_list') }}" class="dropdown-item {% if window2 == 'list' %} active {% endif %}">Property List</a>
+                                <a href="{{ url_for('app_view_property.property_types') }}" class="dropdown-item {% if window2 == 'type' %} active {% endif %}">Property Type</a>
+                                <a href="{{ url_for('app_view_property.property_agents') }}" class="dropdown-item {% if window2 == 'agent' %} active {% endif %}">Property Agent</a>
+                            </div>
+                        </div>
+                        {% if  user.is_authenticated %}
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle {% if window == 'action' %} active {% endif %}" data-bs-toggle="dropdown">Action</a>
+                            <div class="dropdown-menu rounded-0 m-0">
+                                <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#addPropertyModal">Add property</a>
+                                <a href="{{ url_for('app_view_action.my_properties', listing_type = 'featured') }}" class="dropdown-item {% if window == 'action' %} active {% endif %}">View my properties</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if  user.is_authenticated %}
+                        <div class="d-flex justify-content-center align-items-center">
+                            <a href="{{ url_for('app_views_wishlist.wishlist')}}" class="nav-item nav-link me-3"> <!-- Added margin-end for spacing -->
+                                <img src="{{ url_for('.static', filename='img/heart.png') }}" alt="" style="height: 24px; width: 24px;">
+                            </a>
+                            <a href="" class="nav-item nav-link position-relative" data-bs-toggle="modal" data-bs-target="#MessageModalLabel">
+                                <img src="{{ url_for('.static', filename='img/message.png') }}" alt="Message icon" style="height: 24px; width: 24px;">
+                                <span class="badge" style="color: black; position: absolute; top: 108; right: 0; transform: translate(45%, -45%); font-size: 14px;">{{unread_message}}</span>
+                            </a>
+                            <!-- User Profile Section display it when the user log in User Profile Section End -->
+                            <div class="d-flex align-items-center ms-3">
+                                <div class="dropdown">
+                                    <div class="bg-success p-1 rounded-circle">
+                                        <img src="{{ url_for('.static', filename='img/' + profile_path) }}" alt="User Profile" class="rounded-circle" style="width: 40px; height: 40px; cursor: pointer;" id="profilePic">
+                                    </div>
+                                    <ul class="dropdown-menu dropdown-menu-end" id="profileDropdown" style="visibility: hidden; opacity: 0; transition: opacity 0.3s;">
+                                        <li><a class="dropdown-item" href="{{ url_for('app_views_auth.profile') }}">View Profile</a></li>
+                                        <li><a class="dropdown-item" href="{{ url_for('app_views_auth.log_out') }}">Log Out</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if not user.is_authenticated %}
+                    <a id="signInButton" href="#" class="btn btn-primary px-3 d-flex justify-content-center" data-bs-toggle="modal" data-bs-target="#signInModal">
+                        Sign in
+                    </a>
+                    {% endif %}
+                    <br>               
+                </div>
+            </nav>
+        </div>
+        <!-- Navbar End -->
+
+        <!-- Message Modal Structure -->
+        <div class="modal fade" id="MessageModalLabel" tabindex="-1" aria-labelledby="MessageModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl"> 
+                <div class="modal-content" style="background-color: rgba(255, 255, 255, 0.8); border: none; margin: 140px 0px 0;">
+                    <div class="modal-header" style="position: sticky; top: 0; z-index: 1; background: rgba(255, 255, 255, 0.8);">
+                        <h5 class="modal-title" id="MessageModalLabel">Chats</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                        <div class="message-list">
+                            <!-- Messages will be injected here by JavaScript -->
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Conversation Structure Start -->
+
+
+        <!-- Conversation Modal HTML -->
+        <div class="modal fade" id="ConversationModal" tabindex="-1" aria-labelledby="ConversationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content" style="background-color: rgba(255, 255, 255, 0.8); border: none; margin: 140px 0px 0; height: 380px;">
+                    <div class="modal-header" style="position: sticky; top: 0; z-index: 1; background: rgba(255, 255, 255, 0.8);">
+                        <h5 class="modal-title" id="ConversationModalLabel">
+                            <button type="button" class="btn btn-link" onclick="closeConversation()" style="text-decoration: none; color: #09131e; font-size: 30px;">
+                                &#8592; <!-- Back Arrow -->
+                            </button>
+                            <span id="conversationProperty"></span>
+                        </h5>
+                    </div>
+                    <div class="modal-body" style="position: relative; padding-bottom: 60px; height: 300px; overflow-y: auto;">
+                        <!-- Messages will be injected here by JavaScript -->
+                        <div class="message-list" id="messageList"></div>
+                    </div>
+                    <div class="message-input" style="position: relative; padding: 10px;">
+                        <div style="display: flex; align-items: center;">
+                            <textarea id="newMessage" rows="1" style="flex: 1; border-radius: 15px; border: 1px solid #ccc; padding: 10px; resize: none;" placeholder="Type your message..."></textarea>
+                            <button type="button" class="btn btn-primary ms-2" onclick="sendMessage()">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- conversation model end -->
+    
+        <!-- Sign In Modal start-->
+        <div class="modal fade" id="signInModal" tabindex="-1" aria-labelledby="signInModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background: rgba(255, 255, 255, 0.8); border: none; margin-top: 48px;">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="signInModalLabel">Sign In</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="{{ url_for('app_views_auth.login_view') }}">
+                            {{ sign_in_form.hidden_tag() }} <!-- CSRF token -->
+                            <div class="mb-3">
+                                {{ sign_in_form.email.label(class="form-label") }}
+                                {{ sign_in_form.email(class="form-control", id="signInEmail", required="required") }}
+                                {% if sign_in_form.email.errors %}
+                                    <div class="text-danger">
+                                        {% for error in sign_in_form.email.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                {{ sign_in_form.password.label(class="form-label") }}
+                                {{ sign_in_form.password(class="form-control", id="signInPassword", required="required") }}
+                                {% if sign_in_form.password.errors %}
+                                    <div class="text-danger">
+                                        {% for error in sign_in_form.password.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {{ sign_in_form.submit(class="btn btn-primary") }}
+                            <p class="mt-3">Don't have an account? 
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#signUpModal" data-bs-dismiss="modal">Sign Up</a>
+                            </p>
+                        </form>
+                        <div class="mb-3">
+                            <a href="#forgotPasswordModal" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" data-bs-dismiss="modal" style="color: rgb(242, 86, 86);">Forgot your password?</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Sign In Modal End -->
+
+        <!-- Sign Up Modal Start-->
+        <div class="modal fade" id="signUpModal" tabindex="-1" aria-labelledby="signUpModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background: rgba(255, 255, 255, 0.8); border: none; margin-top: 120px;">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="signUpModalLabel">Sign Up</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="max-height: 60vh; overflow-y: auto; padding: 20px;">
+                        <form method="POST" action="{{ url_for('app_views_auth.sign_up') }}" onsubmit="return validateForm()">
+                            {{ sign_up_form.hidden_tag() }}
+                            <div class="row mb-3">
+                                <div class="col-12 col-md-6"> <!-- Full width on mobile, half on tablet/desktop -->
+                                    {{ sign_up_form.first_name.label(class="form-label") }}
+                                    {{ sign_up_form.first_name(class="form-control", id="firstName", required="required") }}
+                                    {% if sign_up_form.first_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in sign_up_form.first_name.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-12 col-md-6"> <!-- Full width on mobile, half on tablet/desktop -->
+                                    {{ sign_up_form.last_name.label(class="form-label") }}
+                                    {{ sign_up_form.last_name(class="form-control", id="lastName", required="required") }}
+                                    {% if sign_up_form.last_name.errors %}
+                                        <div class="text-danger">
+                                            {% for error in sign_up_form.last_name.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                {{ sign_up_form.phone_number.label(class="form-label") }}
+                                {{ sign_up_form.phone_number(class="form-control", id="phoneNumber", required="required") }}
+                                {% if sign_up_form.phone_number.errors %}
+                                    <div class="text-danger">
+                                        {% for error in sign_up_form.phone_number.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="mb-3">
+                                {{ sign_up_form.user_type.label(class="form-label") }}
+                                <select class="form-control" id="userType" name="user_type" required>
+                                    <option value="" disabled selected>Select your user type</option>
+                                    <option value="Supplier">Supplier</option>
+                                    <option value="Client">Client</option>
+                                </select>
+                                {% if sign_up_form.user_type.errors %}
+                                    <div class="text-danger">
+                                        {% for error in sign_up_form.user_type.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-12 col-md-6"> <!-- Full width on mobile, half on tablet/desktop -->
+                                    {{ sign_up_form.email.label(class="form-label") }}
+                                    {{ sign_up_form.email(class="form-control", id="signUpEmail", required="required") }}
+                                    {% if sign_up_form.email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in sign_up_form.email.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-12 col-md-6"> <!-- Full width on mobile, half on tablet/desktop -->
+                                    {{ sign_up_form.password.label(class="form-label") }}
+                                    {{ sign_up_form.password(class="form-control", id="signUpPassword", required="required") }}
+                                    {% if sign_up_form.password.errors %}
+                                        <div class="text-danger">
+                                            {% for error in sign_up_form.password.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                {{ sign_up_form.confirm_password.label(class="form-label") }}
+                                {{ sign_up_form.confirm_password(class="form-control", id="confirmPassword", required="required") }}
+                                {% if sign_up_form.confirm_password.errors %}
+                                    <div class="text-danger">
+                                        {% for error in sign_up_form.confirm_password.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            {{ sign_up_form.submit(class="btn btn-primary w-100") }} <!-- Full width button -->
+                            <p class="mt-3 text-center">Already have an account? 
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#signInModal" data-bs-dismiss="modal">Sign In</a>
+                            </p>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Sign up modal end -->
+          
+        <!-- Forgot Password Modal start -->
+        <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="ForgotPasswordModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" style="background: rgba(255, 255, 255, 0.8); border: none; margin-top: -80px;">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="forgotPasswordModalLabel">Reset your Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="POST" action="{{ url_for('app_views_auth.forget_password') }}">
+                            {{ forgot_password_form.hidden_tag() }} <!-- CSRF token -->
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    {{ forgot_password_form.email.label(class="form-label") }}
+                                    {{ forgot_password_form.email(class="form-control", id="resetEmail", required="required") }}
+                                    {% if forgot_password_form.email.errors %}
+                                        <div class="text-danger">
+                                            {% for error in forgot_password_form.email.errors %}
+                                                <p>{{ error }}</p>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {{ forgot_password_form.submit(class="btn btn-primary") }} <!-- Submit button -->
+                            <p>Already have an account? <a href="#" data-bs-toggle="modal" data-bs-target="#signInModal" data-bs-dismiss="modal">Sign In</a></p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Forgot Password Modal End -->
+
+        <!-- Add property Structure Start -->
+        <div class="modal fade" id="addPropertyModal" tabindex="-1" aria-labelledby="addPropertyModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl"> 
+                <div class="modal-content" style="background-color: rgba(255, 255, 255, 0.8); border: none; margin: 140px 0px 0;">
+                    <div class="modal-header" style="position: sticky; top: 0; z-index: 1; background: rgba(255, 255, 255, 0.8);">
+                        <h5 class="modal-title" id="addPropertyModalLabel">Add Property</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> <!-- Add scrolling for the body -->
+                        <form enctype="multipart/form-data" action="{{ url_for('app_view_action.upload_property') }}" method="POST">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Property Title</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="mainImage" class="form-label">Main Image</label>
+                                    <input type="file" class="form-control" id="mainImage" accept="image/*" name="mainImage" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea class="form-control" id="description" rows="3" name="description" required></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="additionalImages" class="form-label">Additional Images</label>
+                                <div id="imageContainer" class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <input type="file" class="form-control" accept="image/*" name="additionalImages" required onchange="addNewImageField(this)">
+                                        
+                                            <label for="image_description" class="form-label">Image Description</label>
+                                            <select class="form-select" id="image_description" name="additionalDescriptions" required>
+                                                <option value="" disabled selected>Select an image description</option>
+                                                <option value="Main_entrance">Main Entrance</option>
+                                                <option value="Kitchen">Kitchen</option>
+                                                <option value="Living_room">Living Room</option>
+                                                <option value="Bedroom">Bedroom</option>
+                                                <option value="Bathroom">Bathroom</option>
+                                                <option value="Balcony">Balcony</option>
+                                            </select> 
+                                    </div>
+                                </div>
+                            </div>                            
+                            <div class="row mb-3">
+                                <div class="mb-3">
+                                    <label for="propertyType" class="form-label">Type of Property</label>
+                                    <select class="form-select" id="propertyType" name="propertyType" required>
+                                        <option value="" disabled selected>Select a property type</option>
+                                        <option value="apartment">Apartment</option>
+                                        <option value="house">Villa</option>
+                                        <option value="studio">House</option>
+                                        <option value="villa">Studio</option>
+                                    </select>
+                                </div>                                 
+                                <div class="col-md-4">
+                                    <label for="price" class="form-label">Price</label>
+                                    <input type="number" class="form-control" min="1" id="price" name="price" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="listing_type" class="form-label">Listing Type</label>
+                                    <select class="form-select" id="listing_type" name="listing_type" required>
+                                        <option value="" disabled selected>Select Listing Type</option>
+                                        <option value="rent">Rent</option>
+                                        <option value="sell">Sell</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="address" class="form-label">Address</label>
+                                    <input type="text" class="form-control" id="address" name="address" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="city" class="form-label">City</label>
+                                    <input type="text" class="form-control" id="city" name="city" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="state" class="form-label">State/Region</label>
+                                    <input type="text" class="form-control" id="state" name="state" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="country" class="form-label">Country</label>
+                                    <input type="text" class="form-control" id="country" name="country" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="zipCode" class="form-label">Zip Code</label>
+                                    <input type="text" class="form-control" id="zipCode" name="zipCode" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="bedrooms" class="form-label">Bedrooms</label>
+                                    <input type="number" class="form-control" id="bedrooms" min="1" name="bedrooms" required>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="bathrooms" class="form-label">Bathrooms</label>
+                                    <input type="number" class="form-control" id="bathrooms" min="1" name="bathrooms" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="area" class="form-label">Area (sq ft/m²)</label>
+                                    <input type="number" class="form-control" id="area" min="1" name="area" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Add property Structure End -->
+
+        <!-- Flash message -->
+        {% for  message in get_flashed_messages(with_categories=true) %}
+            <div class="alert alert-dismissible fade show flash-message
+                {% if message[0] == 'error' %} alert-danger {% else %} alert-success {% endif %}" 
+                role="alert" id="flashMessage" style="max-width: 600px; margin: 10px auto; text-align: center;">
+                <strong>{{ message[1] }}</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+
+
+        <main>
+            {% block content %}
+            <!-- Default content goes here -->
+            {% endblock %}
+        </main>
+
+        <!-- Footer Start -->
+        <div class="container-fluid bg-dark text-white-50 footer pt-5 mt-5 wow fadeIn" data-wow-delay="0.1s">
+            <div class="container py-5">
+                <div class="row g-5">
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="text-white mb-4">Get In Touch</h5>
+                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
+                        <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>{{admin_phone_number}}</p>
+                        <p class="mb-2"><i class="fa fa-envelope me-3"></i>{{admin_email}}</p>
+                        <div class="d-flex pt-2">
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="text-white mb-4">Quick Links</h5>
+                        <a class="btn btn-link text-white-50" href="{{ url_for('app_view_property.about') }}">Our Services</a>
+                        <a class="btn btn-link text-white-50" href="">Terms & Condition</a>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="text-white mb-4">Photo Gallery</h5>
+                        <div class="row g-2 pt-2">
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="{{ url_for('.static', filename='img/property-1.jpg') }}" alt="">
+                            </div>
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="{{ url_for('.static', filename='img/property-2.jpg') }}" alt="">
+                            </div>
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="{{ url_for('.static', filename='img/property-3.jpg') }}" alt="">
+                            </div>
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="{{ url_for('.static', filename='img/property-4.jpg') }}" alt="">
+                            </div>
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="{{ url_for('.static', filename='img/property-5.jpg') }}" alt="">
+                            </div>
+                            <div class="col-4">
+                                <img class="img-fluid rounded bg-light p-1" src="{{ url_for('.static', filename='img/property-6.jpg') }}" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="text-white mb-4">Newsletter</h5>
+                        <p>Add your email to receive new update about houses.</p>
+                        <div class="position-relative mx-auto" style="max-width: 400px;">
+                            <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Your email">
+                            <button type="button" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">SignUp</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="copyright">
+                    <div class="row">
+                        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                            &copy; <a class="border-bottom" href="{{ url_for('app_view_home.home') }}">RoofMarket</a>, All Right Reserved. 
+                        </div>
+                        <div class="col-md-6 text-center text-md-end">
+                            <div class="footer-menu">
+                                <a href="{{ url_for('app_view_home.home') }}">Home</a>
+                                <a href="#">Cookies</a>
+                                <a href="{{ url_for('app_view_property.about') }}">Help</a>
+                                <a href="#">FQAs</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Footer End -->
+
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+        {% if show_modal == "yes" %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Ensure content is loaded before showing the modal
+                const modalElement = document.getElementById('MessageModalLabel');
+                const conversationModal = new bootstrap.Modal(modalElement);
+        
+                // Wait until the modal element is fully initialized
+                setTimeout(() => {
+                    conversationModal.show(); // Show the modal
+                }, 100); // Small delay to ensure content is ready (if needed)
+            });
+        </script>
+        {% endif %}
+    </div>    
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+    integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+    crossorigin="anonymous"
+  ></script>
+    <script src="{{ url_for('.static', filename='lib/wow/wow.min.js') }}"></script>
+    <script src="{{ url_for('.static', filename='lib/easing/easing.min.js') }}"></script>
+    <script src="{{ url_for('.static', filename='lib/waypoints/waypoints.min.js') }}"></script>
+    <script src="{{ url_for('.static', filename='lib/owlcarousel/owl.carousel.min.js') }}"></script>
+
+    <!-- Template Javascript -->
+    <script src="{{ url_for('.static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('.static', filename='js/script.js') }}"></script>
+    
+    <script src="{{ url_for('.static', filename='js/wishlist.js') }}"></script>
+    <script src="{{ url_for('.static', filename='js/profile.js') }}"></script>
+    <script src="{{ url_for('.static', filename='js/subcription.js') }}"></script>
+    <script src="{{ url_for('.static', filename='js/modalControl.js') }}"></script>
+</body>
+
+</html>

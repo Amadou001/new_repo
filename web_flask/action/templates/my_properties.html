@@ -1,0 +1,97 @@
+<!--View my properties-->
+
+{% extends "base.html" %}
+
+{% block title %}Property listing{% endblock %}
+
+{% block content %}
+
+    <!-- Property List Start -->
+    <div class="container-xxl py-5">
+        <div class="container">
+            <div class="row g-0 gx-5 align-items-end">
+                <div class="col-lg-6">
+                    <div class="text-start mx-auto mb-5 wow slideInLeft" data-wow-delay="0.1s">
+                        <h1 class="mb-3">My Properties</h1>
+                        <br>
+                        <!-- Search Bar Start -->
+                        <form class="d-flex">
+                            <input class="form-control me-2" type="search" id="searchInput" placeholder="Search property" aria-label="Search">
+                        </form>
+                        <!-- Search Bar End -->
+                    </div>
+                </div>
+                <div class="col-lg-6 text-start text-lg-end wow slideInRight" data-wow-delay="0.1s">
+                    <ul class="nav nav-pills d-inline-flex justify-content-end mb-5">
+                        <li class="nav-item me-2">
+                            <a class="btn btn-outline-primary {% if feature == 'featured' %} active {% endif %}"  href="{{ url_for('app_view_action.my_properties', listing_type='featured') }}">Featured</a>
+                        </li>
+                        <li class="nav-item me-2">
+                            <a class="btn btn-outline-primary {% if feature == 'sell' %} active {% endif %}"  href="{{ url_for('app_view_action.my_properties', listing_type='sell') }}">For Sell</a>
+                        </li>
+                        <li class="nav-item me-0">
+                            <a class="btn btn-outline-primary {% if feature == 'rent' %} active {% endif %}"  href="{{ url_for('app_view_action.my_properties', listing_type='rent') }}">For Rent</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>                
+            <div class="tab-content">
+                <div id="tab-1" class="tab-pane fade show p-0 active">
+                    <div class="row g-4">
+
+                        {% for property in properties %}
+
+                        <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="{{ 0.2 * loop.index }}s">
+                            <div class="property-item rounded overflow-hidden">
+                                <a href="{{ url_for('app_view_property.property_onclick', property_id=property.id)}}"> <!-- Link to property.htm -->
+                                    <div class="position-relative overflow-hidden">
+                                        <img class="img-fluid" src="../../{{ property.Main_image_url }}" alt="Main property image">
+                                        <div class="bg-primary rounded text-white position-absolute start-0 top-0 m-4 py-1 px-3">For {{ property.listing_type }}</div>
+                                        <div class="bg-white rounded-top text-primary position-absolute start-0 bottom-0 mx-4 pt-1 px-3">{{ property.property_type }}</div>
+                                    </div>
+                                    <div class="p-4 pb-0">
+                                        <h5 class="text-primary mb-3">${{ property.price }}</h5>
+                                        <span class="d-block h5 mb-2">{{ property.title }} For Sell</span>
+                                        <p><i class="fa fa-map-marker-alt text-primary me-2"></i>{{ property.address }}, {{ property.city}}, {{ property.country }}</p>
+                                    </div>
+                                    <div class="d-flex border-top">
+                                        <small class="flex-fill text-center border-end py-2"><i class="fa fa-ruler-combined text-primary me-2"></i> {{ property.area}} Sqft</small>
+                                        <small class="flex-fill text-center border-end py-2"><i class="fa fa-bed text-primary me-2"></i> {{ property.bedrooms }} Bed</small>
+                                        <small class="flex-fill text-center py-2"><i class="fa fa-bath text-primary me-2"></i> {{ property.bathrooms }} Bath</small>
+                                    </div>
+                                </a> <!-- End of link -->
+                                <div class="delete-icon position-absolute top-0 end-0 m-4">
+                                    <a href="{{ url_for('app_view_action.delete_property', property_id=property.id) }}" class="text-danger" title="Delete this property"><i class="fa fa-trash-alt fa-lg"></i></a>
+                                </div>
+                            </div>
+                        </div>  
+                        
+                        {% endfor %}
+                                                  
+                        <div class="col-12 text-center wow fadeInUp" data-wow-delay="0.1s">
+                            <a class="btn btn-primary py-3 px-5" href="{{ url_for('app_view_property.property_list') }}">Browse More Property</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Property List End -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add event listener to all delete icons
+        const deleteIcons = document.querySelectorAll('.delete-icon a');
+        deleteIcons.forEach(function(icon) {
+            icon.addEventListener('click', function(event) {
+               // event.preventDefault(); // Prevent default anchor behavior
+                const propertyItem = this.closest('.property-item'); // Find the property card
+                if (propertyItem) {
+                    propertyItem.remove(); // Remove the card
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}

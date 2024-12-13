@@ -1,0 +1,72 @@
+<!-- templates/Subcribers.html -->
+{% extends "base.html" %}
+
+{% block title %} Subcribers {% endblock %}
+
+{% block content %}
+
+<div class="container-xxl bg-white p-0">
+    <!-- New line Start -->
+    <br>
+    <!-- New line End -->
+
+    <!-- subcription heading start -->
+    <header class="mb-4 text-center">
+        <h4>Manage Subscriptions</h4>
+        <div class="d-flex justify-content-center align-items-center">
+            <span class="me-2">Subscription Status :</span>
+            {% if status == 'Suspended' %}
+                <span class="badge bg-secondary">{{status}}</span>
+            {% else %}
+                <span class="badge bg-success">{{status}}</span>
+            {% endif %}
+        </div>        
+    </header>
+    <!-- subcription heading end -->
+    
+    <!-- Back Button -->
+    <div class="text-center mb-3">
+        <a href="{{ url_for('app_views_auth.admin_panel') }}" class="btn btn-outline-primary">Back</a>
+    </div>
+
+    <!-- Search Bar and Button to Activate/Deactivate Subscription -->
+    <div class="container mb-4">
+        <form method="POST" action="{{url_for('app_views_auth.manage_subcription')}}"> <!-- Adjust the action URL for activating subscriptions -->
+            <div class="row align-items-center">
+                <div class="col-12 col-md-8 mb-2 mb-md-0">
+                    <input type="text" class="form-control" id="searchInput" name="searchInput" placeholder="Search user by email">
+                </div>
+                <div class="col-12 col-md-4 text-center text-md-end">
+                    <div class="d-flex flex-column flex-md-row justify-content-md-end">
+                        <button type="submit" class="btn btn-primary me-2 mb-2 mb-md-0" name="action" value="Active">Activate Subscription</button>
+                        <button type="submit" class="btn btn-secondary" name="action" value="Suspended">Deactivate Subscription</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- User Management Table -->
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Total Subscription</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.subscriptions }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

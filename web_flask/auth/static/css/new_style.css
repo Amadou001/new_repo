@@ -1,0 +1,35 @@
+.property-item {
+    position: relative;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.property-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.delete-icon {
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.delete-icon:hover {
+    color: #ff5b5b;
+}
+
+.delete-icon i {
+    font-size: 1.5rem;
+    color: red;
+}
+
+.delete-icon i:hover {
+    color: #ff5b5b;
+}
+
+/* Ensure dropdown menu of profile is positioned properly */
+#profileDropdown {
+    position: absolute;
+    top: 50px; 
+    right: 0;
+                                }

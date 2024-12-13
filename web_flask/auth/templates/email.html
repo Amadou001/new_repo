@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Password Reset Confirmation</title>
+  <link href="https://fonts.googleapis.com/css?family=Raleway:400,700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+      font-family: 'Raleway', sans-serif;
+      color: #333;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .header, .footer {
+      background-color: #333;
+      color: #ffffff;
+      text-align: center;
+      padding: 20px;
+    }
+    .header h1 {
+      font-size: 24px;
+      margin: 0;
+    }
+    .content {
+      padding: 20px;
+      color: #333;
+    }
+    .content p {
+      line-height: 1.6;
+    }
+    .content strong {
+      color: #333;
+    }
+    .footer p {
+      margin: 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Password Reset Confirmation</h1>
+    </div>
+    <div class="content">
+      <p><strong>Hello,</strong></p>
+      <p>Your password has been successfully reset. Please find your new password below:</p>
+      <p><strong>New Password:</strong> {{ password }}</p>
+      <p>For security reasons, we recommend updating this password upon logging in by following these steps:</p>
+      <ol>
+        <li>Login with the new password provided.</li>
+        <li>Go to your Profile settings.</li>
+        <li>Select "Change Password" and set a new password of your choice.</li>
+      </ol>
+      <p>If you did not request this reset, please contact our support team immediately to secure your account.</p>
+    </div>
+    <div class="footer">
+      <p>&copy; {{ current_year }} RoofMarket, All Rights Reserved</p>
+    </div>
+  </div>
+</body>
+</html>

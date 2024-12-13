@@ -1,0 +1,67 @@
+<!-- About Page-->
+
+
+{% extends "base.html" %}
+
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+
+    
+        <!-- Header Start -->
+        <div class="container-fluid header bg-white p-0">
+            <div class="row g-0 align-items-center flex-column-reverse flex-md-row">
+                <div class="col-md-6 p-5 mt-lg-5">
+                    <h1 class="display-5 animated fadeIn mb-4">About Us</h1> 
+                        <nav aria-label="breadcrumb animated fadeIn">
+                        <ol class="breadcrumb text-uppercase">
+                            <li class="breadcrumb-item"><a href="{{ url_for('app_view_home.home') }}">Home</a></li>
+                            <li class="breadcrumb-item"><a href="{{ url_for('app_view_property.about') }}">About</a></li>
+                            <li class="breadcrumb-item text-body active" aria-current="page">About Us</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-md-6 animated fadeIn">
+                    <img class="img-fluid" src="{{ url_for('.static', filename='img/header.jpg') }}" alt="">
+                </div>
+            </div>
+        </div>
+        <!-- Header End -->
+
+        <!-- bar Start -->
+        <div class="container-fluid bg-primary mb-5 wow fadeIn" data-wow-delay="0.1s" style="padding: 5px;"></div>
+        <!-- bar End -->
+
+
+
+        <!-- About Start -->
+        <div class="container-xxl py-5">
+            <div class="container">
+                <div class="row g-5 align-items-center">
+                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+                        <div class="about-img position-relative overflow-hidden p-5 pe-0">
+                            <img class="img-fluid w-100" src="{{ url_for('.static', filename='img/about.jpg') }}" alt="About RoofMarket">
+                        </div>
+                    </div>
+                    <div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
+                        <h1 class="mb-4">About RoofMarket</h1>
+                        <p class="mb-4">Welcome to <strong>RoofMarket</strong> — your ultimate destination for discovering the perfect property to match your needs. Whether you’re looking for your dream home, an investment opportunity, or a rental space, RoofMarket simplifies the process, bringing a world of options right to your fingertips.</p>
+                        
+                        <h5 class="mb-3">Why Choose RoofMarket?</h5>
+                        <p><i class="fa fa-check text-primary me-3"></i><strong>Comprehensive Listings:</strong> A wide range of properties to cater to all budgets and preferences.</p>
+                        <p><i class="fa fa-check text-primary me-3"></i><strong>Dynamic Search Features:</strong> Refine your search by location, price range, property type, and more.</p>
+                        <p><i class="fa fa-check text-primary me-3"></i><strong>High-Quality Visuals:</strong> Detailed descriptions and high-resolution images for informed decisions.</p>
+                        <p><i class="fa fa-check text-primary me-3"></i><strong>Secure Transactions:</strong> Verified listings ensure trust and reliability.</p>
+
+                        <h5 class="mb-3">Our Mission</h5>
+                        <p>At RoofMarket, we aim to revolutionize the property search experience by connecting seekers and owners seamlessly, with a focus on transparency and innovation.</p>
+
+                        <a class="btn btn-primary py-3 px-5 mt-3" href="{{ url_for('app_view_property.property_agents') }}">Get in Touch</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- About End -->
+
+
+{% endblock %}

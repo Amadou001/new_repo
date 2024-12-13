@@ -1,0 +1,190 @@
+<!-- templates/profile.html -->
+{% extends "base.html" %}
+
+{% block title %} Profile {% endblock %}
+
+{% block content %}
+
+<!-- Header Start -->
+<div class="container-fluid header bg-white p-0 mt-5">
+    <div class="row g-0 align-items-center">
+        <!-- Name on the left for large screens, stacked on small screens -->
+        <div class="col-12 col-md-6 p-5 mt-lg-5 text-center text-md-start">
+            <h1 class="display-5 animated fadeIn mb-4">{{full_name}}</h1>
+        </div>
+        <!-- Profile pic on the right for large screens, stacked below on small screens -->
+        <div class="col-12 col-md-6 text-center text-md-end animated fadeIn">
+            <!-- Round container for the profile picture -->
+            <div class="d-flex justify-content-center justify-content-md-end" style="margin-top: 30px;">
+                <div class="bg-light p-1 rounded-circle" style="width: 250px; height: 250px;">
+                    <!-- Profile picture inside the circle -->
+                    <img class="img-fluid rounded-circle" src="{{ url_for('.static', filename='img/' + profile_path) }}" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+            </div>                
+        </div>
+    </div>
+</div>
+<!-- Header End -->
+
+<!-- bar Start -->
+<div class="container-fluid bg-primary mb-5 wow fadeIn" data-wow-delay="0.1s" style="padding: 5px;"></div>
+<!-- bar End -->
+
+        
+<div class="container mt-5">
+    <!-- Read-only user information (Initially shown) -->
+    <div class="container mt-5">
+        <!-- Read-only user information (Initially shown) -->
+        <div class="row mb-4" id="userInfo">
+            <!-- First Name -->
+            <div class="col-md-6 d-flex align-items-center">
+                <label class="form-label me-2 mb-0 fw-bold">First Name :</label>
+                <p id="firstNameDisplay" class="mb-0">{{first_name}}</p>
+            </div>
+            <br>
+            <br>
+            <!-- Last Name -->
+            <div class="col-md-6 d-flex align-items-center">
+                <label class="form-label me-2 mb-0 fw-bold">Last Name :</label>
+                <p id="lastNameDisplay" class="mb-0">{{last_name}}</p>
+            </div>
+            <br>
+            <!-- Phone Number -->
+            <div class="col-md-6 d-flex align-items-center">
+                <label class="form-label me-2 mb-0 fw-bold">Phone Number :</label>
+                <p id="phoneDisplay" class="mb-0">{{phone_number}}</p>
+            </div>
+            <br>
+            <br>
+            <!-- User Type -->
+            <div class="col-md-6 d-flex align-items-center">
+                <label class="form-label me-2 mb-0 fw-bold">User Type :</label>
+                <p id="userTypeDisplay" class="mb-0">{{user_type}}</p>
+            </div>
+            <br>
+            <!-- Email -->
+            <div class="col-md-6 d-flex align-items-center">
+                <label class="form-label me-2 mb-0 fw-bold">Email :</label>
+                <p id="emailDisplay" class="mb-0">{{email}}</p>
+            </div>
+            <br>
+                <!-- Subscription -->
+            {% if user_type == 'Supplier' or user_type == 'Admin' %}
+            <div class="col-md-6 mb-3"> <!-- Added mb-3 for bottom margin -->
+                <label class="form-label fw-bold">Subscription :</label>
+                <a href="{{ url_for('app_views_auth.property_subcription')}}">View property subscription</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+             
+
+    <!-- Container for flexbox layout, centering both buttons -->
+    <div class="d-flex justify-content-center align-items-center">
+        <!-- Update button to enable editing -->
+        <button class="btn btn-primary mx-2" id="toggleUpdateBtn" style="border-radius: 20px;">Update Information</button>
+        {% if (user_type == 'Supplier' or user_type == 'Admin') and s_status == 'Active' %}
+        <!-- Boost Property Button -->
+        <button id="subscribeButton" class="mx-2" style="background-color: #FF9800; color: black; border: none; padding: 7px 14px; cursor: pointer; border-radius: 20px;">Boost Property</button>
+        {% endif %}
+        {% if user_type == 'Admin' %}
+        <!-- Super User Privilege Button in Blue -->
+        <a href="{{ url_for('app_views_auth.admin_panel')}}">
+            <button id="superUserButton" class="mx-2" style="background-color: #2196F3; color: white; border: none; padding: 7px 14px; cursor: pointer; border-radius: 20px;">
+                Admin Control Panel
+            </button>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Subscription Form (Initially Hidden) -->
+    <div id="subscriptionForm" style="display: none;" class="mt-3">
+        <div class="col-md-6 mb-3">
+            <label for="propertyIdInput" class="form-label">Property ID</label>
+            <select class="form-control" id="propertyIdInput" name="property_id" required>
+                <option value="" disabled selected>Select Property ID</option>
+                {% for property_id in property_ids %}
+                    <option value="{{ property_id }}">{{ property_id }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+        <button id="evaluateButton" class="btn btn-primary" style="margin-bottom: 10px;">Evaluate Cost</button>
+                
+        <!-- Monthly Cost Section (Initially Hidden) -->
+        <div id="costSection" style="display: none;">
+            <div class="col-md-6 mb-3">
+                <label for="amount" class="form-label">Monthly Amount</label>
+                <li><span id="subscriptionStatus" style="color: red;">15 000 GNF</span></li>
+            </div>
+                    
+            <button id="payButton" type="button" class="btn btn-success" style="display: flex; align-items: center;">
+                <img src="{{ url_for('.static', filename='img/orange.jpg') }}" alt="Orange Money Logo" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 8px;">
+                Pay with Orange Money
+            </button>
+        </div>
+        <p style="color: red; font-size: 12px;">* A fee will be deducted from the number {{phone_number}}</p>
+    </div>
+</div>
+<br>
+        
+<!-- Editable form (Initially hidden) -->
+<div class="container" id="updateForm" style="display: none;">
+    <form action="{{ url_for('app_views_auth.profile') }}" method="POST" enctype="multipart/form-data">
+        <div class="row mb-4">
+            <!-- Name input on the left -->
+            <div class="col-md-6 mb-3">
+                <label for="nameInput" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="nameInput" name="first_name" value="{{first_name}}">
+            </div>
+        
+            <div class="col-md-6 mb-3">
+                <label for="nameInput" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="nameInput" name="last_name" value="{{last_name}}">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label for="nameInput" class="form-label">Phone number</label>
+                <input type="text" class="form-control" id="nameInput" name="phone_number" value="{{phone_number}}" minlength="9" maxlength="9">
+            </div>
+            {%  if user_type != "Admin"%}
+            <div class="col-md-6 mb-3">
+                <label for="userType" class="form-label">User Type</label>
+                <select class="form-control" id="userType" name="user_type">
+                    <option value="{{ user_type }}" selected>Select Type</option>
+                    <option value="Supplier">Supplier</option>
+                    <option value="Buyer">Buyer</option>
+                </select>
+            </div>
+            {% endif %}
+            <!-- Email input on the right -->
+            <div class="col-md-6 mb-3">
+                <label for="emailInput" class="form-label">Email</label>
+                <input type="email" class="form-control" id="emailInput" name="email" value="{{email}}">
+            </div>
+            <!-- Upload new profile picture -->
+            <div class="col-md-6 mb-3">
+                <label for="profilePic" class="form-label">Upload New Profile Picture</label>
+                <input type="file" class="form-control" id="profilePic" name="profile_pic">
+            </div>
+            <!-- Old password input on the right -->
+            <div class="col-md-6 mb-3">
+                <label for="oldPasswordInput" class="form-label">Old Password</label>
+                <input type="password" class="form-control" id="oldPasswordInput" name="old_password">
+            </div>
+            <!-- New password input on the right -->
+            <div class="col-md-6 mb-3">
+                <label for="newPasswordInput" class="form-label">New Password</label>
+                <input type="password" class="form-control" id="newPasswordInput" name="new_password">
+            </div>
+        </div>
+        <!-- Save button -->
+        <div class="row">
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-success">Save Changes</button>
+                <button type="button" class="btn btn-secondary" id="cancelUpdateBtn">Cancel</button>
+            </div>
+        </div>
+    </form>
+</div>   
+{% endblock %}
