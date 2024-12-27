@@ -27,6 +27,7 @@ class Property(BaseModel, Base):
     bathrooms = Column(Integer, nullable=True)
     area = Column(Float, nullable=True)
     user_id = Column(String(60), ForeignKey('user.id'), nullable=False)
+    
     user = relationship("User", back_populates="properties")
     transaction = relationship("Transaction", back_populates="property1", cascade="all, delete-orphan")
     property_image = relationship("Property_image", back_populates="property2", cascade="all, delete-orphan")
