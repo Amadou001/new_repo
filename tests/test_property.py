@@ -1,10 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from models.property import Property
+
 
 class TestProperty(unittest.TestCase):
 
@@ -370,6 +367,7 @@ class TestProperty(unittest.TestCase):
         """Test the max value of price"""
         self.property.price = 100000000.0
         self.assertEqual(self.property.price, 100000000.0)
+
 
 if __name__ == '__main__':
     unittest.main()

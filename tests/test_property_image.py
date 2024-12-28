@@ -1,9 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from models.property_image import Property_image
+
 
 class TestPropertyImage(unittest.TestCase):
 
@@ -23,7 +21,8 @@ class TestPropertyImage(unittest.TestCase):
     def test_image_url(self):
         """Test the image_url attribute"""
         self.property_image.image_url = "http://example.com/image.jpg"
-        self.assertEqual(self.property_image.image_url, "http://example.com/image.jpg")
+        self.assertEqual(self.property_image.image_url,
+                         "http://example.com/image.jpg")
 
     def test_property_id(self):
         """Test the property_id attribute"""
@@ -75,7 +74,8 @@ class TestPropertyImage(unittest.TestCase):
         self.property_image.property_id = "a"
         self.assertEqual(len(self.property_image.property_id), 1)
 
-    @patch('models.property_image.Property_image.property2', new_callable=MagicMock)
+    @patch('models.property_image.Property_image.property2',
+           new_callable=MagicMock)
     def test_property_relationship(self, mock_property):
         """Test the property relationship"""
         self.assertIsNotNone(self.property_image.property2)
@@ -88,12 +88,14 @@ class TestPropertyImage(unittest.TestCase):
     def test_set_image_url(self):
         """Test setting the image_url attribute"""
         self.property_image.image_url = "http://example.com/image.gif"
-        self.assertEqual(self.property_image.image_url, "http://example.com/image.gif")
+        self.assertEqual(self.property_image.image_url,
+                         "http://example.com/image.gif")
 
     def test_set_property_id(self):
         """Test setting the property_id attribute"""
         self.property_image.property_id = "property_789"
         self.assertEqual(self.property_image.property_id, "property_789")
+
 
 if __name__ == '__main__':
     unittest.main()

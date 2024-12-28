@@ -1,11 +1,8 @@
 import unittest
 from unittest.mock import patch, MagicMock
-import sys
-import os
-import uuid
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from datetime import datetime
 from models.base_model import BaseModel
+
 
 class TestBaseModel(unittest.TestCase):
 
@@ -25,11 +22,13 @@ class TestBaseModel(unittest.TestCase):
 
     def test_created_at(self):
         """Test the created_at attribute"""
-        self.assertEqual(self.base_model.created_at, datetime(2023, 1, 1, 12, 0, 0))
+        self.assertEqual(self.base_model.created_at,
+                         datetime(2023, 1, 1, 12, 0, 0))
 
     def test_updated_at(self):
         """Test the updated_at attribute"""
-        self.assertEqual(self.base_model.updated_at, datetime(2023, 1, 2, 12, 0, 0))
+        self.assertEqual(self.base_model.updated_at,
+                         datetime(2023, 1, 2, 12, 0, 0))
 
     def test_to_dict_returns_dict(self):
         """Test that to_dict returns a dictionary"""
@@ -147,10 +146,12 @@ class TestBaseModel(unittest.TestCase):
 
     def test_to_dict_with_nested_dict_attributes(self):
         """Test to_dict with nested dict attributes"""
-        self.base_model.details = {"key": {"nested_key": "nested_value"}}
+        self.base_model.details = {"key":
+                                   {"nested_key": "nested_value"}}
         base_model_dict = self.base_model.to_dict()
         self.assertIn('details', base_model_dict)
-        self.assertEqual(base_model_dict['details'], {"key": {"nested_key": "nested_value"}})
+        self.assertEqual(base_model_dict['details'],
+                         {"key": {"nested_key": "nested_value"}})
 
     def test_to_dict_with_empty_list_attributes(self):
         """Test to_dict with empty list attributes"""
@@ -213,6 +214,7 @@ class TestBaseModel(unittest.TestCase):
         }
         with self.assertRaises(ValueError):
             BaseModel(**kwargs)
+
 
 if __name__ == '__main__':
     unittest.main()

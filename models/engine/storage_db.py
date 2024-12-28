@@ -131,8 +131,8 @@ class DBStorage:
         """
         if sign is None:
             sign = '=='
-
-        query = self.__session.query(cls)
+        if cls in [User, Agent, Property, Transaction, Subcription, Whishlist, Review, Property_image, Message, Room, RoomParticipants]:
+            query = self.__session.query(cls)
 
         operators = {
             '==': lambda key, value: key == value,

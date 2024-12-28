@@ -1,12 +1,8 @@
 import unittest
 from unittest.mock import patch, MagicMock
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from models.user import User
 from werkzeug.security import generate_password_hash, check_password_hash
+
 
 class TestUser(unittest.TestCase):
 
@@ -22,7 +18,8 @@ class TestUser(unittest.TestCase):
         """Test the password setter"""
         self.user.password = "test_password"
         self.assertTrue(self.user.password_hash is not None)
-        self.assertTrue(check_password_hash(self.user.password_hash, "test_password"))
+        self.assertTrue(check_password_hash(self.user.password_hash,
+                                            "test_password"))
 
     def test_password_getter_raises_error(self):
         """Test that password getter raises an error"""
@@ -160,8 +157,10 @@ class TestUser(unittest.TestCase):
 
     def test_user_set_password_hash(self):
         """Test setting the user's password hash"""
-        self.user.password_hash = generate_password_hash("new_password")
-        self.assertTrue(check_password_hash(self.user.password_hash, "new_password"))
+        self.user.password_hash = \
+            generate_password_hash("new_password")
+        self.assertTrue(check_password_hash(self.user.password_hash,
+                                            "new_password"))
 
     def test_user_set_properties(self):
         """Test setting the user's properties"""
@@ -196,12 +195,14 @@ class TestUser(unittest.TestCase):
         roomparticipant1 = MagicMock()
         roomparticipant2 = MagicMock()
         self.user.roomparticipants = [roomparticipant1, roomparticipant2]
-        self.assertEqual(self.user.roomparticipants, [roomparticipant1, roomparticipant2])
+        self.assertEqual(self.user.roomparticipants,
+                         [roomparticipant1, roomparticipant2])
 
     def test_user_set_password_hash_directly(self):
         """Test setting the user's password hash directly"""
         self.user.password_hash = "direct_hash"
         self.assertEqual(self.user.password_hash, "direct_hash")
+
 
 if __name__ == '__main__':
     unittest.main()

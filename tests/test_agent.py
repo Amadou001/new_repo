@@ -1,9 +1,6 @@
 import unittest
-import sys
-import os
-import uuid
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from models.agent import Agent
+
 
 class TestAgent(unittest.TestCase):
 
@@ -104,6 +101,7 @@ class TestAgent(unittest.TestCase):
         """Test setting image_url to a string with special characters"""
         self.agent.image_url = "!@#$%^&*()"
         self.assertEqual(self.agent.image_url, "!@#$%^&*()")
+
 
 if __name__ == '__main__':
     unittest.main()

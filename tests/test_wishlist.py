@@ -1,10 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from models.whishlist import Whishlist
+
 
 class TestWhishlist(unittest.TestCase):
 
@@ -115,6 +112,7 @@ class TestWhishlist(unittest.TestCase):
         """Test setting property_id to a string with special characters"""
         self.whishlist.property_id = "!@#$%^&*()"
         self.assertEqual(self.whishlist.property_id, "!@#$%^&*()")
+
 
 if __name__ == '__main__':
     unittest.main()

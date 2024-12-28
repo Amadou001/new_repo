@@ -1,9 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from models.transaction import Transaction, Subcription
+
 
 class TestTransaction(unittest.TestCase):
 
@@ -125,6 +123,7 @@ class TestTransaction(unittest.TestCase):
         self.transaction.duration = 24
         self.assertEqual(self.transaction.duration, 24)
 
+
 class TestSubcription(unittest.TestCase):
 
     def setUp(self):
@@ -159,6 +158,7 @@ class TestSubcription(unittest.TestCase):
         """Test setting the status attribute"""
         self.subcription.status = "Expired"
         self.assertEqual(self.subcription.status, "Expired")
+
 
 if __name__ == '__main__':
     unittest.main()

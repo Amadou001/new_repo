@@ -1,9 +1,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
-import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from models.message import Room, RoomParticipants, Message
+
 
 class TestRoom(unittest.TestCase):
 
@@ -22,6 +20,7 @@ class TestRoom(unittest.TestCase):
     def test_message_relationship(self):
         """Test the message relationship"""
         self.assertIsNotNone(self.room.message)
+
 
 class TestRoomParticipants(unittest.TestCase):
 
@@ -138,6 +137,7 @@ class TestRoomParticipants(unittest.TestCase):
         self.room_participant.room_position = True
         self.assertTrue(self.room_participant.room_position)
 
+
 class TestMessage(unittest.TestCase):
 
     def setUp(self):
@@ -151,7 +151,8 @@ class TestMessage(unittest.TestCase):
     def test_message_content(self):
         """Test the message content attribute"""
         self.message.content = "Hello, this is a test message."
-        self.assertEqual(self.message.content, "Hello, this is a test message.")
+        self.assertEqual(self.message.content,
+                         "Hello, this is a test message.")
 
     def test_message_sender(self):
         """Test the message sender attribute"""
@@ -252,6 +253,7 @@ class TestMessage(unittest.TestCase):
         """Test setting the message room attribute"""
         self.message.room_id = "room_789"
         self.assertEqual(self.message.room_id, "room_789")
+
 
 if __name__ == '__main__':
     unittest.main()

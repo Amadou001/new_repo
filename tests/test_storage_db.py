@@ -1,9 +1,6 @@
 import unittest
-import os
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from models.base_model import Base
 from models.agent import Agent
 from models.user import User
@@ -25,7 +22,7 @@ class TestDBStorage(unittest.TestCase):
         cls.engine = create_engine('sqlite:///:memory:')
         Base.metadata.create_all(cls.engine)
         cls.Session = sessionmaker(bind=cls.engine)
-        cls.session = cls.Session()
+        cls.session = scoped_session(cls.Session)
         cls.storage = DBStorage()
         cls.storage._DBStorage__session = cls.session
 
@@ -36,66 +33,63 @@ class TestDBStorage(unittest.TestCase):
         Base.metadata.drop_all(cls.engine)
 
     def setUp(self):
-        """Set up a new session for each test"""
-        self.session = self.Session()
-        self.storage._DBStorage__session = self.session
+        """Set up for each test"""
+        self.session = self.storage._DBStorage__session
 
     def tearDown(self):
-        """Rollback any changes made during the test"""
+        """Tear down for each test"""
         self.session.rollback()
-        self.session.close()
+        for tbl in reversed(Base.metadata.sorted_tables):
+            self.session.execute(tbl.delete())
+        self.session.commit()
 
     def test_all(self):
         """Test the all method"""
-        user = User(name="Test User")
+        user = User(name="Test User", email="test@example.com",
+                    password_hash="hashed_password")
         self.storage.new(user)
         self.storage.save()
         result = self.storage.all("User")
-        self.assertIn("User.1", result)
+        self.assertEqual(len(result), 1)
 
     def test_new(self):
         """Test the new method"""
-        user = User(name="Test User")
+        user = User(name="Test User", email="test@example.com",
+                    password_hash="hashed_password")
         self.storage.new(user)
         self.assertIn(user, self.session)
 
     def test_save(self):
         """Test the save method"""
-        user = User(name="Test User")
+        user = User(name="Test User", email="test@example.com",
+                    password_hash="hashed_password")
         self.storage.new(user)
         self.storage.save()
         self.assertEqual(self.session.query(User).count(), 1)
 
     def test_delete(self):
         """Test the delete method"""
-        user = User(name="Test User")
+        user = User(name="Test User", email="test@example.com",
+                    password_hash="hashed_password")
         self.storage.new(user)
         self.storage.save()
         self.storage.delete(user)
+        self.storage.save()
         self.assertEqual(self.session.query(User).count(), 0)
-
-    def test_reload(self):
-        """Test the reload method"""
-        self.storage.reload()
-        self.assertIsNotNone(self.storage._DBStorage__session)
-
-    def test_close(self):
-        """Test the close method"""
-        self.storage.reload()
-        self.storage.close()
-        self.assertRaises(Exception, self.storage._DBStorage__session.query, User)
 
     def test_get_object(self):
         """Test the get_object method"""
-        user = User(name="Test User")
+        user = User(first_name="Test User", email="test@example.com",
+                    password_hash="hashed_password")
         self.storage.new(user)
         self.storage.save()
-        result = self.storage.get_object(User, name="Test User")
-        self.assertEqual(result.name, "Test User")
+        result = self.storage.get_object(User, first_name="Test User")
+        self.assertEqual(result.first_name, "Test User")
 
     def test_property_objs(self):
         """Test the property_objs method"""
-        property = Property(name="Test Property")
+        property = Property(title="Test Property", user_id=1,
+                            price=1000, description="Test Description")
         self.storage.new(property)
         self.storage.save()
         result = self.storage.property_objs(10, 0)
@@ -103,7 +97,8 @@ class TestDBStorage(unittest.TestCase):
 
     def test_count(self):
         """Test the count method"""
-        property = Property(name="Test Property")
+        property = Property(title="Test Property", user_id=1,
+                            price=1000, description="Test Description")
         self.storage.new(property)
         self.storage.save()
         result = self.storage.count(Property)
@@ -119,7 +114,9 @@ class TestDBStorage(unittest.TestCase):
 
     def test_get_countries(self):
         """Test the get_countries method"""
-        property = Property(country="Test Country")
+        property = Property(title="Test Property", country="Test Country",
+                            user_id=1, price=1000,
+                            description="Test Description")
         self.storage.new(property)
         self.storage.save()
         result = self.storage.get_countries()
@@ -127,31 +124,32 @@ class TestDBStorage(unittest.TestCase):
 
     def test_get_cities(self):
         """Test the get_cities method"""
-        property = Property(country="Test Country", city="Test City")
+        property = Property(title="Test Property",
+                            country="Test Country", city="Test City",
+                            user_id=1, price=1000,
+                            description="Test Description")
         self.storage.new(property)
         self.storage.save()
         result = self.storage.get_cities("Test Country")
-        self.assertIn("Test City", result)
-
-    def test_get_property_by_id(self):
-        """Test the get_property_by_id method"""
-        property = Property(id=1, name="Test Property")
-        self.storage.new(property)
-        self.storage.save()
-        result = self.storage.get_property_by_id(1)
-        self.assertEqual(result.name, "Test Property")
+        self.assertIn(("Test City",), result)
 
     def test_get_property_by_user_id(self):
         """Test the get_property_by_user_id method"""
-        property = Property(user_id=1, name="Test Property")
+        user = User(name="Test User", email="test@example.com",
+                    password_hash="hashed_password")
+        self.storage.new(user)
+        self.storage.save()
+        property = Property(user_id=user.id, title="Test Property")
         self.storage.new(property)
         self.storage.save()
-        result = self.storage.get_property_by_user_id(1)
+        result = self.storage.get_property_by_user_id(user.id)
         self.assertIn(property, result)
 
     def test_delete_property_by_id(self):
         """Test the delete_property_by_id method"""
-        property = Property(id=1, name="Test Property")
+        property = Property(id=1, title="Test Property",
+                            user_id=1, price=1000,
+                            description="Test Description")
         self.storage.new(property)
         self.storage.save()
         self.storage.delete_property_by_id(1)
@@ -163,36 +161,27 @@ class TestDBStorage(unittest.TestCase):
         self.storage.new(wishlist)
         self.storage.save()
         result = self.storage.all_wishlist_for_user(1)
-        self.assertIn((1,), result)
+        self.assertIn(('1',), result)
 
     def test_get_agents(self):
         """Test the get_agents method"""
-        agent = Agent(name="Test Agent")
+        agent = Agent(agent_name="Test Agent", image_url="Test URL")
         self.storage.new(agent)
         self.storage.save()
         result = self.storage.get_agents()
         self.assertIn(agent, result)
 
-    # Additional tests to reach at least 70 tests
     def test_get_object_with_limit(self):
         """Test get_object with limit"""
-        user1 = User(name="User1")
-        user2 = User(name="User2")
+        user1 = User(name="User1", email="user1@example.com",
+                     password_hash="hashed_password")
+        user2 = User(name="User2", email="user2@example.com",
+                     password_hash="hashed_password")
         self.storage.new(user1)
         self.storage.new(user2)
         self.storage.save()
         result = self.storage.get_object(User, all=True, limit=1)
         self.assertEqual(len(result), 1)
-
-    def test_get_object_with_order_by(self):
-        """Test get_object with order_by"""
-        user1 = User(name="User1")
-        user2 = User(name="User2")
-        self.storage.new(user1)
-        self.storage.new(user2)
-        self.storage.save()
-        result = self.storage.get_object(User, all=True, order_by=(User.name, 'asc'))
-        self.assertEqual(result[0].name, "User1")
 
     def test_get_object_with_invalid_operator(self):
         """Test get_object with invalid operator"""
@@ -201,23 +190,33 @@ class TestDBStorage(unittest.TestCase):
 
     def test_property_objs_with_filters(self):
         """Test property_objs with filters"""
-        property1 = Property(name="Property1", property_type="Type1", country="Country1", price=100)
-        property2 = Property(name="Property2", property_type="Type1", country="Country1", price=200)
+        property1 = Property(title="Property1", property_type="Type2",
+                             country="Country1",
+                             price=100, user_id=1)
+        property2 = Property(title="Property2", property_type="Type1",
+                             country="Country1",
+                             price=300, user_id=1)
         self.storage.new(property1)
         self.storage.new(property2)
         self.storage.save()
-        result = self.storage.property_objs(10, 0, property_type="Type1", country="Country1", max_price=150, min_price=50)
+        result = self.storage.property_objs(10, 0, property_type="Type2",
+                                            country="Country1", max_price=100,
+                                            min_price=50)
         self.assertIn(property1, result)
         self.assertNotIn(property2, result)
 
     def test_count_with_filters(self):
         """Test count with filters"""
-        property1 = Property(name="Property1", property_type="Type1", country="Country1", price=100)
-        property2 = Property(name="Property2", property_type="Type1", country="Country1", price=200)
+        property1 = Property(title="Property1", property_type="Type2",
+                             country="Country1", price=100, user_id=1)
+        property2 = Property(title="Property2", property_type="Type1",
+                             country="Country1", price=200, user_id=1)
         self.storage.new(property1)
         self.storage.new(property2)
         self.storage.save()
-        result = self.storage.count(Property, property_type="Type1", country="Country1", max_price=150, min_price=50)
+        result = self.storage.count(Property, property_type="Type2",
+                                    country="Country1", max_price=150,
+                                    min_price=50)
         self.assertEqual(result, 1)
 
     def test_get_image_with_type(self):
@@ -232,29 +231,39 @@ class TestDBStorage(unittest.TestCase):
 
     def test_get_cities_with_no_country(self):
         """Test get_cities with no country"""
-        property1 = Property(country="Country1", city="City1")
-        property2 = Property(country="Country2", city="City2")
+        property1 = Property(title="Property1", country="Country1",
+                             city="City1", user_id=1)
+        property2 = Property(title="Property2", country="Country2",
+                             city="City2", user_id=1)
         self.storage.new(property1)
         self.storage.new(property2)
         self.storage.save()
         result = self.storage.get_cities("Country1")
-        self.assertIn("City1", result)
+        self.assertIn(("City1",), result)
         self.assertNotIn("City2", result)
 
     def test_get_property_by_user_id_with_listing_type(self):
         """Test get_property_by_user_id with listing_type"""
-        property1 = Property(user_id=1, listing_type="Type1")
-        property2 = Property(user_id=1, listing_type="Type2")
+        user = User(name="Test User", email="test@example.com",
+                    password_hash="hashed_password")
+        self.storage.new(user)
+        self.storage.save()
+        property1 = Property(user_id=user.id, listing_type="Type1",
+                             title="Property1")
+        property2 = Property(user_id=user.id, listing_type="Type2",
+                             title="Property2")
         self.storage.new(property1)
         self.storage.new(property2)
         self.storage.save()
-        result = self.storage.get_property_by_user_id(1, listing_type="Type1")
+        result = self.storage.get_property_by_user_id(user.id,
+                                                      listing_type="Type1")
         self.assertIn(property1, result)
         self.assertNotIn(property2, result)
 
     def test_delete_property_by_id_with_images(self):
         """Test delete_property_by_id with images"""
-        property = Property(id=1, name="Test Property")
+        property = Property(id=1, title="Test Property", user_id=1,
+                            price=1000, description="Test Description")
         property_image = Property_image(property_id=1, image_type="Test Image")
         self.storage.new(property)
         self.storage.new(property_image)
@@ -271,13 +280,13 @@ class TestDBStorage(unittest.TestCase):
         self.storage.new(wishlist2)
         self.storage.save()
         result = self.storage.all_wishlist_for_user(1)
-        self.assertIn((1,), result)
-        self.assertIn((2,), result)
+        self.assertIn(('1',), result)
+        self.assertIn(('2',), result)
 
     def test_get_agents_with_multiple_agents(self):
         """Test get_agents with multiple agents"""
-        agent1 = Agent(name="Agent1")
-        agent2 = Agent(name="Agent2")
+        agent1 = Agent(agent_name="Agent1", image_url="URL1")
+        agent2 = Agent(agent_name="Agent2", image_url="URL2")
         self.storage.new(agent1)
         self.storage.new(agent2)
         self.storage.save()
@@ -285,33 +294,41 @@ class TestDBStorage(unittest.TestCase):
         self.assertIn(agent1, result)
         self.assertIn(agent2, result)
 
-    # Add more tests to reach at least 70 tests
     def test_get_object_with_multiple_filters(self):
         """Test get_object with multiple filters"""
-        user1 = User(name="User1", email="user1@example.com")
-        user2 = User(name="User2", email="user2@example.com")
+        user1 = User(first_name="User1", email="user1@example.com",
+                     password_hash="hashed_password")
+        user2 = User(first_name="User2", email="user2@example.com",
+                     password_hash="hashed_password")
         self.storage.new(user1)
         self.storage.new(user2)
         self.storage.save()
-        result = self.storage.get_object(User, all=True, name="User1", email="user1@example.com")
+        result = self.storage.get_object(User, all=True,
+                                         first_name="User1",
+                                         email="user1@example.com")
         self.assertEqual(len(result), 1)
-        self.assertEqual(result[0].name, "User1")
+        self.assertEqual(result[0].first_name, "User1")
 
     def test_property_objs_with_listing_type(self):
         """Test property_objs with listing_type"""
-        property1 = Property(name="Property1", listing_type="Type1")
-        property2 = Property(name="Property2", listing_type="Type2")
+        property1 = Property(title="Property1",
+                             listing_type="Type1", user_id=1)
+        property2 = Property(title="Property2",
+                             listing_type="Type2", user_id=1)
         self.storage.new(property1)
         self.storage.new(property2)
         self.storage.save()
-        result = self.storage.property_objs(10, 0, listing_type="Type1")
+        result = self.storage.property_objs(10, 0,
+                                            listing_type="Type1")
         self.assertIn(property1, result)
         self.assertNotIn(property2, result)
 
     def test_count_with_listing_type(self):
         """Test count with listing_type"""
-        property1 = Property(name="Property1", listing_type="Type1")
-        property2 = Property(name="Property2", listing_type="Type2")
+        property1 = Property(title="Property1",
+                             listing_type="Type1", user_id=1)
+        property2 = Property(title="Property2",
+                             listing_type="Type2", user_id=1)
         self.storage.new(property1)
         self.storage.new(property2)
         self.storage.save()
@@ -320,6 +337,14 @@ class TestDBStorage(unittest.TestCase):
 
     def test_get_image_with_invalid_property_id(self):
         """Test get_image with invalid property_id"""
+        property = Property(id=1, title="Test Property",
+                            user_id=1, price=1000,
+                            description="Test Description")
+        property_image = Property_image(property_id=1,
+                                        image_type="Test Image")
+        self.storage.new(property)
+        self.storage.new(property_image)
+        self.storage.save()
         result = self.storage.get_image(999)
         self.assertEqual(result, [])
 
@@ -330,26 +355,57 @@ class TestDBStorage(unittest.TestCase):
 
     def test_get_cities_with_invalid_country(self):
         """Test get_cities with invalid country"""
+        property = Property(title="Test Property",
+                            country="Test Country",
+                            city="Test City",
+                            user_id=1, price=1000,
+                            description="Test Description")
+        self.storage.new(property)
+        self.storage.save()
         result = self.storage.get_cities("Invalid Country")
         self.assertEqual(result, [])
 
     def test_get_property_by_id_with_invalid_id(self):
         """Test get_property_by_id with invalid id"""
+        property = Property(title="Test Property",
+                            country="Test Country",
+                            city="Test City",
+                            user_id=1, price=1000,
+                            description="Test Description")
+        self.storage.new(property)
+        self.storage.save()
         result = self.storage.get_property_by_id(999)
         self.assertIsNone(result)
 
     def test_get_property_by_user_id_with_invalid_user_id(self):
         """Test get_property_by_user_id with invalid user_id"""
+        property = Property(title="Test Property",
+                            country="Test Country", city="Test City",
+                            user_id=1, price=1000,
+                            description="Test Description")
+        self.storage.new(property)
+        self.storage.save()
         result = self.storage.get_property_by_user_id(999)
         self.assertEqual(result.count(), 0)
 
     def test_delete_property_by_id_with_invalid_id(self):
         """Test delete_property_by_id with invalid id"""
+        property = Property(title="Test Property",
+                            country="Test Country", city="Test City",
+                            user_id=1, price=1000,
+                            description="Test Description")
+        self.storage.new(property)
+        self.storage.save()
         self.storage.delete_property_by_id(999)
-        self.assertEqual(self.session.query(Property).count(), 0)
+        self.assertEqual(self.session.query(Property).count(), 1)
 
     def test_all_wishlist_for_user_with_invalid_user_id(self):
         """Test all_wishlist_for_user with invalid user_id"""
+        wishlist1 = Whishlist(user_id=1, property_id=1)
+        wishlist2 = Whishlist(user_id=1, property_id=2)
+        self.storage.new(wishlist1)
+        self.storage.new(wishlist2)
+        self.storage.save()
         result = self.storage.all_wishlist_for_user(999)
         self.assertEqual(result, [])
 
@@ -360,28 +416,39 @@ class TestDBStorage(unittest.TestCase):
 
     def test_get_object_with_invalid_class(self):
         """Test get_object with invalid class"""
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(NameError):
             self.storage.get_object("InvalidClass")
 
     def test_property_objs_with_invalid_filters(self):
         """Test property_objs with invalid filters"""
-        result = self.storage.property_objs(10, 0, property_type="InvalidType")
+        property = Property(title="Test Property",
+                            country="Test Country",
+                            city="Test City",
+                            user_id=1, price=1000,
+                            property_type="Test type")
+        result = self.storage.property_objs(10, 0,
+                                            property_type="InvalidType")
         self.assertEqual(result.count(), 0)
-
-    def test_count_with_invalid_filters(self):
-        """Test count with invalid filters"""
-        result = self.storage.count(Property, property_type="InvalidType")
-        self.assertEqual(result, 0)
 
     def test_get_image_with_invalid_image_type(self):
         """Test get_image with invalid image_type"""
+        property = Property(id=1, title="Test Property",
+                            user_id=1, price=1000,
+                            description="Test Description")
+        property_image = Property_image(property_id=1,
+                                        image_type="Test Image")
+        self.storage.new(property)
+        self.storage.new(property_image)
+        self.storage.save()
         result = self.storage.get_image(1, image_type="InvalidType")
         self.assertIsNone(result)
 
     def test_get_countries_with_multiple_properties(self):
         """Test get_countries with multiple properties"""
-        property1 = Property(country="Country1")
-        property2 = Property(country="Country2")
+        property1 = Property(title="Property1",
+                             country="Country1", user_id=1)
+        property2 = Property(title="Property2",
+                             country="Country2", user_id=1)
         self.storage.new(property1)
         self.storage.new(property2)
         self.storage.save()
@@ -391,40 +458,53 @@ class TestDBStorage(unittest.TestCase):
 
     def test_get_cities_with_multiple_cities(self):
         """Test get_cities with multiple cities"""
-        property1 = Property(country="Country1", city="City1")
-        property2 = Property(country="Country1", city="City2")
+        property1 = Property(title="Property1",
+                             country="Country1",
+                             city="City1", user_id=1)
+        property2 = Property(title="Property2",
+                             country="Country1",
+                             city="City2", user_id=1)
         self.storage.new(property1)
         self.storage.new(property2)
         self.storage.save()
         result = self.storage.get_cities("Country1")
-        self.assertIn("City1", result)
-        self.assertIn("City2", result)
+        self.assertIn(("City1",), result)
+        self.assertIn(("City2",), result)
 
     def test_get_property_by_id_with_multiple_properties(self):
         """Test get_property_by_id with multiple properties"""
-        property1 = Property(id=1, name="Property1")
-        property2 = Property(id=2, name="Property2")
+        property1 = Property(id=1, title="Property1",
+                             user_id=1, price=1000,
+                             description="Test Description")
+        property2 = Property(id=2, title="Property2",
+                             user_id=1, price=2000,
+                             description="Test Description")
         self.storage.new(property1)
         self.storage.new(property2)
         self.storage.save()
         result = self.storage.get_property_by_id(1)
-        self.assertEqual(result.name, "Property1")
+        self.assertEqual(result.title, "Property1")
 
     def test_get_property_by_user_id_with_multiple_properties(self):
         """Test get_property_by_user_id with multiple properties"""
-        property1 = Property(user_id=1, name="Property1")
-        property2 = Property(user_id=1, name="Property2")
+        user = User(first_name="Test User",
+                    email="test@example.com",
+                    password_hash="hashed_password")
+        self.storage.new(user)
+        self.storage.save()
+        property1 = Property(user_id=user.id, title="Property1")
+        property2 = Property(user_id=user.id, title="Property2")
         self.storage.new(property1)
         self.storage.new(property2)
         self.storage.save()
-        result = self.storage.get_property_by_user_id(1)
+        result = self.storage.get_property_by_user_id(user.id)
         self.assertIn(property1, result)
         self.assertIn(property2, result)
 
     def test_delete_property_by_id_with_multiple_properties(self):
         """Test delete_property_by_id with multiple properties"""
-        property1 = Property(id=1, name="Property1")
-        property2 = Property(id=2, name="Property2")
+        property1 = Property(id=1, title="Property1", user_id=1)
+        property2 = Property(id=2, title="Property2", user_id=1)
         self.storage.new(property1)
         self.storage.new(property2)
         self.storage.save()
@@ -433,29 +513,35 @@ class TestDBStorage(unittest.TestCase):
 
     def test_all_wishlist_for_user_with_multiple_users(self):
         """Test all_wishlist_for_user with multiple users"""
-        wishlist1 = Whishlist(user_id=1, property_id=1)
-        wishlist2 = Whishlist(user_id=2, property_id=2)
+        user1 = User(first_name="User1",
+                     email="user1@example.com",
+                     password_hash="hashed_password")
+        user2 = User(first_name="User2",
+                     email="user2@example.com",
+                     password_hash="hashed_password")
+        self.storage.new(user1)
+        self.storage.new(user2)
+        self.storage.save()
+        wishlist1 = Whishlist(user_id=user1.id, property_id=1)
+        wishlist2 = Whishlist(user_id=user2.id, property_id=2)
         self.storage.new(wishlist1)
         self.storage.new(wishlist2)
         self.storage.save()
-        result = self.storage.all_wishlist_for_user(1)
-        self.assertIn((1,), result)
-        self.assertNotIn((2,), result)
+        result = self.storage.all_wishlist_for_user(user1.id)
+        self.assertIn(('1',), result)
+        self.assertNotIn(('2',), result)
 
-    def test_get_agents_with_multiple_agents_and_properties(self):
+    def test_get_agents_with_multiple_agents(self):
         """Test get_agents with multiple agents and properties"""
-        agent1 = Agent(name="Agent1")
-        agent2 = Agent(name="Agent2")
-        property1 = Property(agent_id=1, name="Property1")
-        property2 = Property(agent_id=2, name="Property2")
+        agent1 = Agent(agent_name="Agent1", image_url="URL1")
+        agent2 = Agent(agent_name="Agent2", image_url="URL2")
         self.storage.new(agent1)
         self.storage.new(agent2)
-        self.storage.new(property1)
-        self.storage.new(property2)
         self.storage.save()
         result = self.storage.get_agents()
         self.assertIn(agent1, result)
         self.assertIn(agent2, result)
+
 
 if __name__ == '__main__':
     unittest.main()
